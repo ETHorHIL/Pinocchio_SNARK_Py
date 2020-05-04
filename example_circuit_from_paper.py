@@ -29,7 +29,7 @@ def vanishing_poly(S):
 
 
 def use_Pinocchio_paper_example(b0, b1, b2, b3):
-    a = np.array([1, b0, b1, b2, b3])
+    a = np.array([Fp(x) for x in [1, b0, b1, b2, b3]])
     L0 = np.array([Fp(x) for x in [2, 0, 0, 0, 0]])
     L1 = np.array([Fp(x) for x in [0, 1, 0, 0, 0]])
     L2 = np.array([Fp(x) for x in [0, 0, 1, 0, 0]])
@@ -273,6 +273,8 @@ def babysnark_prover(L, R, O_, LROpoly, n_stmt, proving_key, a):
         print("k= ", k)
         print("gl[k]: ", gl_to_li[k])
         print("a[k]:", a[k])
+        print("gl * a:", gl_to_li[k] * a[k])
+
     gLbig_at_s = sum([gl_to_li[k] * a[k] for k in range(n_stmt, n)], G*0)
     gRbig_at_s = sum([gr_to_ri[k] * a[k] for k in range(n_stmt, n)], G*0)
     gObig_at_s = sum([go_to_oi[k] * a[k] for k in range(n_stmt, n)], G*0)
