@@ -103,7 +103,7 @@ def evaluate_in_exponent(powers_of_tau, poly):
 
 
 # setup
-def pinocchio_setup(L, R, _O, n_stmt):
+def non_zk_SNARK_setup(L, R, _O, n_stmt):
     """
     L, R, O: the matrix representing the problem equations
     n_stmt: number of entries
@@ -197,7 +197,7 @@ def pinocchio_setup(L, R, _O, n_stmt):
 
 
 # Prover
-def babysnark_prover(L, R, O_, LROpoly, n_stmt, proving_key, a):
+def non_zk_SNARK_prover(L, R, O_, LROpoly, n_stmt, proving_key, a):
     """
     U: the matrix m*n representing the problem equations
     n_stmt: the first l entries of the solution vectore representing the stmt
@@ -305,7 +305,7 @@ def babysnark_prover(L, R, O_, LROpoly, n_stmt, proving_key, a):
     return pi
 
 
-def babysnark_verifier(L, R, O_, m, n, verifier_key, a_stmt, pi):
+def non_zk_SNARK_verifier(L, R, O_, m, n, verifier_key, a_stmt, pi):
     """
     U: the matrix m*n representing the problem equations
     CRS: the common reference string, babysnark_setup()[0]
@@ -394,7 +394,7 @@ def testingProof():
 
     # setup
     print("Computing setup...")
-    proving_key, verifier_key, LROpoly = pinocchio_setup(L, R, O_, n_stmt)
+    proving_key, verifier_key, LROpoly = non_zk_SNARK_setup(L, R, O_, n_stmt)
     print("proving_key lenght: ", len(proving_key))
     print("proving_key: ", proving_key)
     print("verifier_key lenght: ", len(verifier_key))
@@ -404,12 +404,12 @@ def testingProof():
 
     # prover
     print("Proving...")
-    pi = babysnark_prover(L, R, O_, LROpoly, n_stmt, proving_key, a)
+    pi = non_zk_SNARK_prover(L, R, O_, LROpoly, n_stmt, proving_key, a)
     print("pi lenght: ", len(pi))
 
     print("Verifying...")
-    success = babysnark_verifier(L, R, O_, m, n,
-                                 verifier_key, a_stmt[:n_stmt], pi)
+    success = non_zk_SNARK_verifier(L, R, O_, m, n,
+                                    verifier_key, a_stmt[:n_stmt], pi)
     print("VERIFICATION SUCCESSFUL?", success)
 
 
