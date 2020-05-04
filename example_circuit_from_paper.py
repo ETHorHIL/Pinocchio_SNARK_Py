@@ -41,36 +41,17 @@ def use_paper_example(wire_a, wire_b, wire_NAND):
     O1 = np.array([Fp(x) for x in [1, 0, 0, 0]])
     O_ = np.array([O1, O1, O1, O1])
 
-    print("Using Paper Example...")
-    print("a: ", a)
-    print("L: ")
-    print(L)
-    print("R: ")
-    print(R)
-    print("O: ")
-    print(O_)
     (m, n) = L.shape
-    print("Matrix shape: ", m, " X ", n)
-    print("This assignment is satisfying?",
-          (L.dot(a) * R.dot(a) == O_.dot(a)).all())
-    print("La: ")
-    print(L.dot(a))
-    print("Ra: ")
-    print(R.dot(a))
-    print("La * Ra: ")
-    print(L.dot(a) * R.dot(a))
-    print("Oa: ")
-    print(O_.dot(a))
     return L, R, O_, a
 
 
 def evaluate_in_exponent(powers_of_tau, poly):
-    # powers_of_tau:
-    #     [G*0, G*tau, ..., G*(Tau**m)]
-    # poly:
-    #    degree m-bound polynomial in coefficient form
-    print("P.degree: ", poly.degree())
-    print("Powers of tau: ", len(powers_of_tau))
+    """
+    powers_of_tau:
+         [G*0, G*tau, ..., G*(Tau**m)]
+    poly:
+        degree m-bound polynomial in coefficient form
+    """
     assert poly.degree() + 1 < len(powers_of_tau)
     return sum([powers_of_tau[i] * poly.coefficients[i] for i in
                 range(poly.degree()+1)], G*0)
@@ -127,15 +108,6 @@ def pinocchio_setup(L, R, _O, n_stmt):
     # Set the proving keys
     powers_of_s = [G * (s ** i) for i in range(m+1)]
 
-    # I am unsure of I should add the l_0 terms or if it is covered by the
-    # n_stmt
-    # for the example we have n = 3 variables and 4 polynomials which already
-    # includes the 1 polynomial
-    # l_0 = Poly.interpolate(Fp(0), L_v_one)
-    # r_0 = Poly.interpolate(Fp(0), R_v_one)
-    # o_0 = Poly.interpolate(Fp(0), O_v_one)
-    # g_l_to_l_i = [g_l * l_o] + [g_l * L_i(s) for L_i in Ls]
-
     gl_to_li = [g_l * L_i(s) for L_i in Ls]
     gr_to_ri = [g_r * R_i(s) for R_i in Rs]
     go_to_oi = [g_o * O_i(s) for O_i in Os]
@@ -149,7 +121,6 @@ def pinocchio_setup(L, R, _O, n_stmt):
     go_to_oi_shift_b = [g_o * (O_i(s) * beta) for O_i in Os[n_stmt:]]
 
     # Leaving out the ZK part which would require the encrypted target and shft
-
     proving_key = [powers_of_s,
                    [gl_to_li, gr_to_ri, go_to_oi],
                    [gl_to_li_shift_a, gr_to_ri_shift_a, go_to_oi_shift_a],
@@ -181,21 +152,6 @@ def babysnark_prover(L, R, O_, LROpoly, n_stmt, proving_key, a):
     (m, n) = L.shape
     assert L.shape == R.shape == O_.shape
     assert n == len(a)
-    print("n_stmt", n_stmt)
-    # assert len(CRS) == (m+1) + 2 + (n - n_stmt)
-    print("len(proving_key): ", len(proving_key))
-    assert len(proving_key) == 4
-    assert len(proving_key[0]) == m + 1
-    assert len(proving_key[1]) == 3
-    assert len(proving_key[1][0]) == len(proving_key[1][1]) \
-        == len(proving_key[1][2]) == n
-    assert len(proving_key[2]) == 3
-    assert len(proving_key[2][0]) == len(proving_key[2][1]) \
-        == len(proving_key[2][2]) == n - n_stmt
-    assert len(proving_key[3]) == 3
-    assert len(proving_key[3][0]) == len(proving_key[3][1]) \
-        == len(proving_key[3][2]) == n - n_stmt
-
     assert len(ROOTS) >= m
 
     # parse the proving key
@@ -220,7 +176,6 @@ def babysnark_prover(L, R, O_, LROpoly, n_stmt, proving_key, a):
     # Target is the vanishing polynomial
     t = vanishing_poly(ROOTS[:m])
 
-    # this is missing l_0, r_0, o_0
     L_big = Poly([])
     for k in range(n):
         L_big += Ls[k] * a[k]
@@ -241,14 +196,10 @@ def babysnark_prover(L, R, O_, LROpoly, n_stmt, proving_key, a):
     assert p == h*t
 
     # assign provers variable to encrypted polynomials
-    # TODo the one at the end might have to be changed s l_0 for all
     gLbig_at_s = sum([gl_to_li[k] * a[k] for k in range(n_stmt, n)], G*0)
     gRbig_at_s = sum([gr_to_ri[k] * a[k] for k in range(n_stmt, n)], G*0)
     gObig_at_s = sum([go_to_oi[k] * a[k] for k in range(n_stmt, n)], G*0)
 
-    print("inspection:")
-    print("gl_to_li_shift_a lenght: ", len(gl_to_li_shift_a))
-    print("a lenght: ", len(a))
     gLbig_at_s_shift = sum([gl_to_li_shift_a[k-n_stmt] * a[k]
                            for k in range(n_stmt, n)], G*0)
     gRbig_at_s_shift = sum([gr_to_ri_shift_a[k-n_stmt] * a[k]
@@ -257,7 +208,6 @@ def babysnark_prover(L, R, O_, LROpoly, n_stmt, proving_key, a):
                            for k in range(n_stmt, n)], G*0)
 
     # assign the variable values consistency polynomials
-    # from here I have no idea if G * 0 is to be added
     g_to_Z = sum([(gl_to_li_shift_b[k-n_stmt] + gr_to_ri_shift_b[k-n_stmt]
                  + go_to_oi_shift_b[k-n_stmt])
                  * a[k] for k in range(n_stmt, n)], G * 0)
@@ -280,11 +230,6 @@ def babysnark_verifier(L, R, O_, m, n, verifier_key, a_stmt, pi):
     a_stmt: the first part of the solution vecor, part of the statement
     pi: proof, output of  prover, H, Bw, Vw
     """
-    # (m, n) = L[0].shape
-    # assert L[0].shape == R[1].shape == O_[2].shape
-    # print("     (m,n): ", m, ", ", n)
-    # (H, Bw, Vw) = pi
-
     # parse proof
     gLp = pi[0]
     gRp = pi[1]
@@ -366,8 +311,6 @@ def testingProof():
     print("proving_key: ", proving_key)
     print("verifier_key lenght: ", len(verifier_key))
     print("verifier_key: ", verifier_key)
-    print("[Ls, Rs, Os]: ", len(LROpoly))
-    print("[Ls, Rs, Os]: ", LROpoly)
 
     # prover
     print("Proving...")
