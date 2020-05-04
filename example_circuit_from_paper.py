@@ -28,7 +28,35 @@ def vanishing_poly(S):
     return p
 
 
-def use_paper_example(wire_a, wire_b, wire_NAND):
+def use_Pinocchio_paper_example(b0, b1, b2, b3):
+    a = np.array([1, b0, b1, b2, b3])
+    L0 = np.array([Fp(x) for x in [2, 0, 0, 0, 0]])
+    L1 = np.array([Fp(x) for x in [0, 1, 0, 0, 0]])
+    L2 = np.array([Fp(x) for x in [0, 0, 1, 0, 0]])
+    L3 = np.array([Fp(x) for x in [0, 0, 0, 1, 0]])
+    L4 = np.array([Fp(x) for x in [0, 0, 0, 0, 1]])
+    L = np.array([L0, L1, L2, L3, L4])
+
+    R0 = np.array([Fp(x) for x in [1, 0, 0, 0, 0]])
+    R1 = np.array([Fp(x) for x in [0, 1, 0, 0, 0]])
+    R2 = np.array([Fp(x) for x in [0, 0, 1, 0, 0]])
+    R3 = np.array([Fp(x) for x in [0, 0, 0, 1, 0]])
+    R4 = np.array([Fp(x) for x in [0, 0, 0, 0, 1]])
+    R = np.array([R0, R1, R2, R3, R4])
+
+    O0 = np.array([Fp(x) for x in [0, 1, 2, 4, 8]])
+    O1 = np.array([Fp(x) for x in [0, 1, 0, 0, 0]])
+    O2 = np.array([Fp(x) for x in [0, 0, 1, 0, 0]])
+    O3 = np.array([Fp(x) for x in [0, 0, 0, 1, 0]])
+    O4 = np.array([Fp(x) for x in [0, 0, 0, 0, 1]])
+    O_ = np.array([O0, O1, O2, O3, O4])
+
+    print("La * Ra: = ", L.dot(a) * R.dot(a))
+    print("Oa = ", O_.dot(a))
+    return L, R, O_, a
+
+
+def use_babySNARK_paper_example(wire_a, wire_b, wire_NAND):
     a = np.array([Fp(x) for x in [1, wire_a, wire_b, wire_NAND]])
     U1 = np.array([Fp(x) for x in [-1, 2, 0, 0]])
     U2 = np.array([Fp(x) for x in [-1, 0, 2, 0]])
@@ -240,6 +268,11 @@ def babysnark_prover(L, R, O_, LROpoly, n_stmt, proving_key, a):
 
     # assign provers variable to encrypted polynomials
     # TODo the one at the end might have to be changed s l_0 for all
+    print("checking for typeerror: ")
+    for k in range(n_stmt, n):
+        print("k= ", k)
+        print("gl[k]: ", gl_to_li[k])
+        print("a[k]:", a[k])
     gLbig_at_s = sum([gl_to_li[k] * a[k] for k in range(n_stmt, n)], G*0)
     gRbig_at_s = sum([gr_to_ri[k] * a[k] for k in range(n_stmt, n)], G*0)
     gObig_at_s = sum([go_to_oi[k] * a[k] for k in range(n_stmt, n)], G*0)
@@ -350,8 +383,8 @@ def babysnark_verifier(L, R, O_, m, n, verifier_key, a_stmt, pi):
 def testingProof():
 
     n_stmt = 1
-    L, R, O_, a = use_paper_example(1, 1, 0)
-
+    # L, R, O_, a = use_paper_example(1, 1, 0)
+    L, R, O_, a = use_Pinocchio_paper_example(0, 1, 0, 0)
     (m, n) = L.shape
     a_stmt = a[:n_stmt]
     print("a_stmt: ", a_stmt)
