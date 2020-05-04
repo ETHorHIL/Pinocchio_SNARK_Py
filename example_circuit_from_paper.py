@@ -4,9 +4,7 @@ from ssbls120 import Fp, Poly, Group
 import numpy as np
 import random
 
-# Generator
 G = Group.G
-# e(G,G)
 GT = Group.GT
 
 ROOTS = [Fp(i) for i in range(128)]
