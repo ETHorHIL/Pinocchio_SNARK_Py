@@ -1,5 +1,6 @@
 from finitefield.finitefield import FiniteField
 from finitefield.polynomial import polynomialsOver
+import code_to_r1cs as r1cs
 from ssbls120 import Fp, Poly, Group
 import numpy as np
 import random
@@ -28,6 +29,14 @@ def vanishing_poly(S):
     for s in S:
         p *= Poly([-s, Fp(1)])
     return p
+
+
+def use_vitaliks_compiler(code, solution):
+    r, A, B, C = r1cs.code_to_r1cs_with_inputs(code, solution)
+    L = np.array([[Fp(x) for x in A[k]] for k in range(len(A))])
+    R = np.array([[Fp(x) for x in B[k]] for k in range(len(B))])
+    O_ = np.array([[Fp(x) for x in C[k]] for k in range(len(C))])
+    return L, R, O_, r
 
 
 def use_Pinocchio_paper_example(b0, b1, b2, b3):
@@ -321,12 +330,27 @@ def babysnark_verifier(L, R, O_, m, n, verifier_key, a_stmt, pi):
 
     return True
 
+# putting the code for the R1CS compiler here because I cant put it inside a
+# function because of indentation...
+
+
+code = """
+def qeval(x):
+    y = x**3
+    return y + x + 5
+"""
+solution = [3]
+
 
 def testingProof():
-
     n_stmt = 1
-    L, R, O_, a = use_paper_example(1, 1, 0)
+    # 3 Options for circuits to play around with:
+    # 1. Vitaliks compiler
+    # 2. Example of the Pinocchio paper
+    # 3. Example from the babySNARK paper
+    L, R, O_, a = use_vitaliks_compiler(code, solution)
     # L, R, O_, a = use_Pinocchio_paper_example(0, 1, 0, 0, 0)
+    # L, R, O, a = use_paper_example(0, 0, 1)
 
     (m, n) = L.shape
     a_stmt = a[:n_stmt]
