@@ -2,6 +2,7 @@
 My "for fun" Python Implementation of Pinocchio.
 
 I took inspiration from these sources:
+
 https://medium.com/@imolfar/why-and-how-zk-snark-works-8-zero-knowledge-computation-f120339c2c55
 
 https://github.com/initc3/babySNARK
@@ -10,9 +11,10 @@ https://github.com/ethereum/research/blob/master/zksnark/code_to_r1cs.py
 
 SNARK.py is missing the optional calculations to make it Zero Knowledge. zk-SNARK.py has those calculations and is a bit slower.
 
-There are two trivial circuits that you can run. A NAND gate and check if a number is binary. The SNARK.py file also contains a function that allows you to compile your
-own code to R1CS and prove an assignment to that. The compiler, code_to_r1cs.py
-was written by Vitalik Buterin.
+I included some trivial examples to see it running: A NAND gate and a check if a number is binary.
+
+I have also included Vitaliks code_to_r1cs.py in my SNARK.py file which allows
+you to compile any code down to R1CS and prove that its assignment checks out.
 
 # Protocol:
 
