@@ -11,7 +11,6 @@ def qeval(x):
 
 def testing():
     r, A, B, C = code_to_r1cs.code_to_r1cs_with_inputs(text, [3])
-
     L = np.array([[Fp(x) for x in A[k]] for k in range(len(A))])
     R = np.array([[Fp(x) for x in B[k]] for k in range(len(B))])
     O_ = np.array([[Fp(x) for x in C[k]] for k in range(len(C))])
